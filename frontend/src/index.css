@@ -1,0 +1,196 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Dark theme (default) */
+    --background: 230 25% 10%;
+    --foreground: 210 40% 98%;
+    
+    --card: 229 26% 13%;
+    --card-foreground: 210 40% 98%;
+    
+    --popover: 229 26% 13%;
+    --popover-foreground: 210 40% 98%;
+    
+    --primary: 266 100% 64%;
+    --primary-foreground: 210 40% 98%;
+    
+    --secondary: 199 89% 48%;
+    --secondary-foreground: 210 40% 98%;
+    
+    --accent: 31 100% 60%;
+    --accent-foreground: 210 40% 98%;
+    
+    --success: 142 70% 49%;
+    --success-foreground: 210 40% 98%;
+    
+    --warning: 38 92% 50%;
+    --warning-foreground: 210 40% 98%;
+    
+    --destructive: 0 91% 71%;
+    --destructive-foreground: 210 40% 98%;
+    
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    
+    --ring: 266 100% 64%;
+  }
+  
+  .light {
+    /* Light theme */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    
+    --primary: 266 100% 64%;
+    --primary-foreground: 210 40% 98%;
+    
+    --secondary: 199 89% 48%;
+    --secondary-foreground: 210 40% 98%;
+    
+    --accent: 31 100% 60%;
+    --accent-foreground: 210 40% 98%;
+    
+    --success: 142 70% 49%;
+    --success-foreground: 210 40% 98%;
+    
+    --warning: 38 92% 50%;
+    --warning-foreground: 210 40% 98%;
+    
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    
+    --ring: 266 100% 64%;
+  }
+  
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+}
+
+/* Animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Glassmorphism - adapts to theme */
+.glass {
+  @apply bg-opacity-20 backdrop-blur-lg backdrop-filter border border-white/10 shadow-xl;
+}
+
+.light .glass {
+  @apply border-black/10;
+}
+
+/* Scrollbar styling - adapts to theme */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-muted/30 rounded-full;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-muted rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-muted/80;
+}
+
+/* Theme transition for all elements */
+* {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* Ensure proper contrast in light mode */
+.light .text-muted-foreground {
+  color: hsl(215.4 16.3% 46.9%);
+}
+
+.light .bg-muted {
+  background-color: hsl(210 40% 96%);
+}
+
+.light .border-border {
+  border-color: hsl(214.3 31.8% 91.4%);
+}
+
+/* Light mode specific adjustments for better visibility */
+.light .bg-primary\/5 {
+  background-color: hsl(266 100% 64% / 0.05);
+}
+
+.light .bg-primary\/10 {
+  background-color: hsl(266 100% 64% / 0.1);
+}
+
+.light .bg-muted\/5 {
+  background-color: hsl(210 40% 96% / 0.5);
+}
+
+.light .bg-muted\/10 {
+  background-color: hsl(210 40% 96% / 0.8);
+}
+
+.light .bg-muted\/20 {
+  background-color: hsl(210 40% 96% / 0.9);
+}
+
+.light .bg-muted\/40 {
+  background-color: hsl(210 40% 96%);
+}
+
+.light .bg-muted\/50 {
+  background-color: hsl(210 40% 94%);
+}
+
+/* Light mode hero background adjustments */
+.light .animate-float {
+  opacity: 0.6;
+}
