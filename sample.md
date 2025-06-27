@@ -1,186 +1,153 @@
-# Mock API Documentation for On-Chain Integration Development
+### **Service Endpoint**
 
-This document provides the expected request and response formats for the key external data sources our multi-agent system will query.
+The multi-agent system will use a single HTTP POST endpoint
 
-The final deployed multi-agent system on Cloud Run will handle the complex logic of calling these APIs, but your integration can be built with these mock structures for now.
+*   **Deployment on:** Google Cloud Run
+*   **Method:** `POST`
+*   **Endpoint URL (Sample):** `https://chainguard-ai-service-xxxxxx-uc.a.run.app/assess`
+    *(Note: this is a dummy url)*
+*   **Authentication:** Requests must include an API Key in the `Authorization` header.
+    *   **Header:** `Authorization: Bearer <YOUR_API_KEY>`
 
 ---
 
-### 1. DeFiLlama API (Financial Health)
+### **API Request Payload**
 
-**Purpose:** fetch core financial metrics like Total Value Locked (TVL)
+To initiate a risk assessment, send a JSON object in the request body with the protocol's unique identifier.
+Since we have this in the JSON file Collins created
 
-**Mock Endpoint:** `GET https://api.llama.fi/protocol/{protocol_slug}`
+**Content-Type:** `application/json`
 
-**Request:**
-- simple HTTP `GET` request. The `{protocol_slug}` is the unique ID for the protocol.
-- **Example:** `GET https://api.llama.fi/protocol/aave-v2`
+#### **Request Body Structure**
 
-**Success Response (200 OK) - JSON Payload:**
+| Field | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `protocol_name` | string | Yes | The unique identifier for the DeFi protocol (e.g., "aave-v3", "uniswap-v3", "compound-v2"). |
+
+#### **Example Request**
+
 ```json
 {
-  "id": "13",
-  "name": "Aave V2",
-  "symbol": "AAVE",
-  "chain": "Ethereum",
-  "tvl": 3540123456.78,
-  "chainTvls": {
-    "Ethereum": 3100123456.78,
-    "Polygon": 400000000.00,
-    "Avalanche": 40000000.00
+  "protocol_name": "aave-v3"
+}
+```
+
+---
+
+### **API Response Payload**
+
+Detailed JSON response object containing the complete risk assessment. Can be used for both the frontend and the chainlink function on-chain integrations.
+
+#### **Successful Response (200 OK)**
+
+This is a sample structure returned when an assessment is completed successfully.
+
+**Example Response for a request of `{"protocol_name": "aave-v3"}`:**
+
+```json
+{
+  "protocol_name": "aave-v3",
+  "assessment_timestamp": "2023-10-27T10:30:00Z",
+  "risk_score": {
+    "overall": 28.5,
+    "category": "LOW_RISK",
+    "confidence": 0.92,
+    "components": {
+      "protocol_security": 15,
+      "financial_health": 25,
+      "governance_quality": 40,
+      "data_quality": 95
+    }
   },
-  "slug": "aave-v2",
-  "url": "https://aave.com/"
-}
-```
-
-**Key Fields for On-Chain Logic:**
-- `tvl` (number): The total value locked across all chains.
-- `chainTvls.Ethereum` (number): The TVL on a specific chain, which might be more relevant depending on the context.
-
----
-
-### 2. GitHub API (Development Activity & Security)
-
-**Purpose:** Assess the ongoing development activity and find audit reports, which are indicators of project health and security posture.
-
-**Mock Endpoint:** `GET https://api.github.com/repos/{owner}/{repo}/audits`
-*(Note: This is a conceptual endpoint. In reality, the agent would search the repo, but this mock simplifies it.)*
-
-**Request:**
-- HTTP `GET` request to a conceptual endpoint for fetching audit info.
-- **Example:** `GET https://api.github.com/repos/aave/aave-v3-core/audits`
-
-**Success Response (200 OK) - JSON Payload:**
-```json
-{
-  "repository": "aave/aave-v3-core",
-  "last_commit_date": "2023-10-26T12:00:00Z",
-  "recent_commit_count_30d": 45,
-  "audits": [
-    {
-      "firm": "OpenZeppelin",
-      "date": "2023-01-15",
-      "report_url": "https://.../openzeppelin_audit.pdf",
-      "summary": "No critical vulnerabilities found."
-    },
-    {
-      "firm": "Trail of Bits",
-      "date": "2023-02-20",
-      "report_url": "https://.../trailofbits_audit.pdf",
-      "summary": "Two high-severity issues identified and fixed."
-    }
+  "explanation": "Aave v3 is considered a low-risk protocol. It demonstrates strong security practices with multiple audits and a robust bug bounty program. Its financial health is excellent, supported by high TVL and consistent revenue generation. While governance is highly active, some centralization exists in multisig control, representing a minor risk factor. Data sources for this analysis were highly reliable.",
+  "key_findings": [
+    "Security: Multiple audits from top-tier firms (Trail of Bits, OpenZeppelin).",
+    "Centralization: 4/7 multisig for critical admin functions.",
+    "Data: Repository migration from aave/aave-protocol to aave-dao/aave-v3-origin was successfully detected and validated.",
+    "Sustainability: Protocol revenue consistently exceeds token incentives."
   ],
-  "audit_count": 2
-}
-```
-
-**Key Fields for On-Chain Logic:**
-- `audit_count` (integer): A simple, quantifiable metric for security diligence.
-- `recent_commit_count_30d` (integer): A measure of recent development activity.
-
----
-
-### 3. The Graph (On-Chain Protocol State)
-
-**Purpose:** To query detailed, indexed on-chain data like total borrows, supply, user positions, etc., without hitting an RPC node directly.
-
-**Mock Endpoint:** `POST https://api.thegraph.com/subgraphs/name/aave/protocol-v3`
-
-**Request:**
-- An HTTP `POST` request with a GraphQL query in the body.
-
-**Request Body (GraphQL Query):**
-```graphql
-{
-  "query": "{ aaveProtocol(id: \\"1\\") { totalValueLockedUSD totalBorrowsUSD } }"
-}
-```
-
-**Success Response (200 OK) - JSON Payload:**
-```json
-{
-  "data": {
-    "aaveProtocol": {
-      "totalValueLockedUSD": "4512345678.90",
-      "totalBorrowsUSD": "1234567890.12"
-    }
+  "agent_contributions": {
+    "data_hunter": { "status": "SUCCESS", "reliability_score": 98.5 },
+    "protocol_analyst": { "status": "SUCCESS", "security_score": 90 },
+    "market_intelligence": { "status": "SUCCESS", "financial_score": 85 }
   }
 }
 ```
 
-**Key Fields for On-Chain Logic:**
-- `data.aaveProtocol.totalValueLockedUSD` (string number): The protocol's TVL according to the subgraph.
-- `data.aaveProtocol.totalBorrowsUSD` (string number): The total amount borrowed, a key health indicator.
+#### **Response Field Descriptions**
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `protocol_name` | string | Echos the requested protocol identifier. |
+| `assessment_timestamp` | string | ISO 8601 timestamp of when the assessment was generated. |
+| `risk_score` | object | The core numerical scoring object. |
+| `risk_score.overall` | float | The final, weighted risk score (0-100, lower is better). |
+| `risk_score.category` | string | Human-readable risk category (`LOW_RISK`, `MEDIUM_RISK`, `HIGH_RISK`). |
+| `risk_score.confidence` | float | The system's confidence in the assessment (0.0 - 1.0). |
+| `risk_score.components` | object | Breakdown of sub-scores from different risk vectors. |
+| `explanation` | string | A natural language summary generated by the Risk Synthesizer Agent. |
+| `key_findings` | array(string) | A list of the most critical insights discovered by the agents. |
+| `agent_contributions` | object | (For debugging/transparency) A summary of each agent's individual contribution. |
 
 ---
 
-### 4. CoinGecko API (Market Data)
+### **(EXTRA) Integration Sample for Chainlink Functions**
 
-**Purpose:** To retrieve token market data such as price, trading volume, and liquidity, which are essential for assessing market risk and stability.
+This is a sample `source.js` file that can be used in a Chainlink Function to call our service and return the overall risk score on-chain.
 
-**Mock Endpoint:** `GET https://api.coingecko.com/api/v3/coins/{id}`
+**`source.js`**
+```javascript
+// This script requests a risk assessment from the ChainGuard AI API
+// and returns the overall risk score to the smart contract.
 
-**Request:**
-- A simple HTTP `GET` request. The `{id}` is CoinGecko's unique identifier for the asset.
-- **Example:** `GET https://api.coingecko.com/api/v3/coins/aave`
+// Arguments are passed from the smart contract calling the function
+const protocolName = args[0];
+const apiKey = secrets.chainguardApiKey;
 
-**Success Response (200 OK) - JSON Payload:**
-```json
-{
-  "id": "aave",
-  "symbol": "aave",
-  "name": "Aave",
-  "market_cap_rank": 50,
-  "liquidity_score": 75.8,
-  "market_data": {
-    "current_price": {
-      "usd": 85.50
-    },
-    "total_volume": {
-      "usd": 50123456
-    },
-    "market_cap": {
-      "usd": 1282500000
-    }
-  }
+if (!apiKey) {
+  throw Error("ChainGuard API Key is not set in secrets.");
 }
+
+if (!protocolName) {
+  throw Error("Protocol name not provided as an argument.");
+}
+
+// 1. CONSTRUCT THE HTTP REQUEST
+const chainguardApiRequest = Functions.makeHttpRequest({
+  url: `https://chainguard-ai-service-xxxxxx-uc.a.run.app/assess`, // <-- Final production URL goes here
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${apiKey}`,
+  },
+  data: {
+    "protocol_name": protocolName,
+  },
+  timeout: 30000, // 30s timeout
+});
+
+// 2. EXECUTE THE REQUEST
+const [response] = await Promise.all([chainguardApiRequest]);
+
+if (response.error || response.status !== 200) {
+  throw Error(response.message || `API request failed with status ${response.status}`);
+}
+
+// 3. EXTRACT AND RETURN THE DATA
+const responseData = response.data;
+const overallScore = responseData.risk_score.overall;
+
+// The score is a float (e.g., 28.5). We multiply by 100 to preserve precision
+// before converting to a uint256 for Solidity (e.g., 2850).
+const scoreAsInteger = Math.round(overallScore * 100);
+
+console.log(`Risk score for ${protocolName}: ${overallScore}. Returning ${scoreAsInteger} to contract.`);
+
+// Return the result to the smart contract, encoded as a uint256.
+return Functions.encodeUint256(scoreAsInteger);
 ```
 
-**Key Fields for On-Chain Logic:**
-- `liquidity_score` (number): A crucial metric for assessing how easily an asset can be traded without significant price impact.
-- `market_data.total_volume.usd` (number): Represents recent trading interest and activity.
-- `market_cap_rank` (integer): A proxy for how established and significant the token is in the broader market.
-
----
-
-### 5. Etherscan API (Contract Verification)
-
-**Purpose:** To directly verify smart contract integrity, most importantly checking if the source code is publicly verified on-chain.
-
-**Mock Endpoint:** `GET https://api.etherscan.io/api?module=contract&action=getsourcecode&address={contract_address}`
-
-**Request:**
-- An HTTP `GET` request with query parameters.
-- **Example:** `GET https://api.etherscan.io/api?module=contract&action=getsourcecode&address=0x87870Bca3F3fD6036b8D4ce8303D71e081e3637e`
-
-**Success Response (200 OK) - JSON Payload:**
-```json
-{
-  "status": "1",
-  "message": "OK",
-  "result": [
-    {
-      "SourceCode": "[... Full Solidity Source Code ...]",
-      "ABI": "[... Contract ABI ...]",
-      "ContractName": "AaveV3Pool",
-      "CompilerVersion": "v0.8.10+commit.fc410830",
-      "Proxy": "0",
-      "Implementation": ""
-    }
-  ]
-}
-```
-
-**Key Fields for On-Chain Logic:**
-- `is_verified` (boolean): This is a **derived metric**. The agent determines this by checking if `result[0].SourceCode` is empty or not. For your testing, you can represent this as a simple boolean value (`true` or `false`). A verified contract is a fundamental sign of transparency and security.
+**Next Steps (chainlink)**
+1.  Store the API key as a Chainlink Functions secret named `chainguardApiKey`.
+2.  Your `fulfillRequest` function in the Solidity contract will receive this `uint256` value.
+3.  To get the original score in the contract, you will need to divide the received value by 100.
