@@ -1,8 +1,21 @@
 {
   "name": "hardhat-project",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:fuji": "hardhat run scripts/deploy.ts --network fuji",
+    "deploy:avalanche": "hardhat run scripts/deploy.ts --network avalanche",
+    "deploy:local": "hardhat run scripts/deploy.ts --network hardhat",
+    "deploy:interactive": "hardhat run scripts/deploy-helper.ts",
+    "verify:fuji": "hardhat run scripts/verify.ts --network fuji",
+    "verify:avalanche": "hardhat run scripts/verify.ts --network avalanche",
+    "node": "hardhat node",
+    "console": "hardhat console"
+  },
   "devDependencies": {
-    "@chainlink/contracts": "^0.8.0",
+    "@chainlink/contracts": "^0.7.0",
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "dotenv": "^16.4.5",
     "hardhat": "^2.24.2"
   }
 }

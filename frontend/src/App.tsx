@@ -1,12 +1,13 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ThemeProvider } from './contexts/ThemeContext';
-import Header from './components/Header';
-import HomePage from './pages/HomePage';
-import DashboardPage from './pages/DashboardPage';
-import ProtocolDetailPage from './pages/ProtocolDetailPage';
-import InsightsPage from './pages/InsightsPage';
-import ComparePage from './pages/ComparePage';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "./contexts/ThemeContext";
+import Header from "./components/Header";
+import HomePage from "./pages/HomePage";
+import DashboardPage from "./pages/DashboardPage";
+import ProtocolDetailPage from "./pages/ProtocolDetailPage";
+import InsightsPage from "./pages/InsightsPage";
+import ComparePage from "./pages/ComparePage";
+import ContractIntegration from "./components/ContractIntegration";
 
 function App() {
   return (
@@ -18,10 +19,14 @@ function App() {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/protocol/:protocolId" element={<ProtocolDetailPage />} />
+              <Route
+                path="/protocol/:protocolId"
+                element={<ProtocolDetailPage />}
+              />
               <Route path="/insights" element={<InsightsPage />} />
               <Route path="/insights/:protocolId" element={<InsightsPage />} />
               <Route path="/compare" element={<ComparePage />} />
+              <Route path="/contract" element={<ContractIntegration />} />
             </Routes>
           </main>
           <footer className="border-t border-border">
@@ -47,10 +52,18 @@ function App() {
                   <span className="font-bold">ChainGuard AI</span>
                 </div>
                 <div className="flex space-x-4 text-sm text-muted-foreground">
-                  <a href="#" className="hover:text-primary transition-colors">Privacy</a>
-                  <a href="#" className="hover:text-primary transition-colors">Terms</a>
-                  <a href="#" className="hover:text-primary transition-colors">Documentation</a>
-                  <a href="#" className="hover:text-primary transition-colors">API</a>
+                  <a href="#" className="hover:text-primary transition-colors">
+                    Privacy
+                  </a>
+                  <a href="#" className="hover:text-primary transition-colors">
+                    Terms
+                  </a>
+                  <a href="#" className="hover:text-primary transition-colors">
+                    Documentation
+                  </a>
+                  <a href="#" className="hover:text-primary transition-colors">
+                    API
+                  </a>
                 </div>
               </div>
               <div className="mt-4 text-center text-xs text-muted-foreground">
