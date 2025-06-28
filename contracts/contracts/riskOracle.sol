@@ -121,7 +121,7 @@ contract ChainGuardRiskOracle is
         assessment.confidence = 9200; // Default confidence level (92%)
         assessment.lastUpdated = block.timestamp;
         assessment.explanation = ""; // Could be stored as IPFS hash in future
-        assessment.componentScores = [1500, 2500, 4000, 9500]; // Default component scores
+        assessment.componentScores = [uint256(1500), uint256(2500), uint256(4000), uint256(9500)]; // Default component scores
 
         // Store the assessment
         protocolRisks[protocol] = assessment;
