@@ -127,10 +127,8 @@ async def initialize_gemini():
         
         # Try different models in order of preference
         model_names_to_try = [
-            "gemini-1.5-flash",
-            "gemini-1.5-pro", 
-            "gemini-pro",
-            "gemini-1.0-pro"
+            "gemini-2.5-pro",
+            "gemini-2.5-flash"
         ]
         
         model_initialized = False
