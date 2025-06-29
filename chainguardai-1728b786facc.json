@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "chainguardai",
+  "private_key_id": "1728b786facc24fc907248717bb327abae8b8e5d",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEuwIBADANBgkqhkiG9w0BAQEFAASCBKUwggShAgEAAoIBAQCzy1gtAOs0OeXK\nfqca/6zC0lRw/GfeiOGjNBo0nw3WNZY+BB451U1joTa1HUuEWYKMP8IcCONdkVdk\ntCi4cEJTPHF3bOTYuAYCPkA9bz/QH0U/eESklx/FVo42mag1QKn1lcv4bQ98IsUl\nJWt1VXaOSkIqhDROr0l3gbL56APX6lQiPYNPCwXZIyeak7Hsw64cgFXI1OUirXyp\ndOEG0AQ5vb3dDyAZvkhzoSSmNK1q9mDTAZW1rhS/D5Nf0Rj1TY6JscC+q/xlPB6Y\nYRRqqdd5spETNsCfm7y7oJ6THKbuAFGGGsSmURq19l/fJIRC2nZqBFJCD7Vcv9bN\narJpNNUhAgMBAAECgf80gY9vZFtkUtmLz3D9rnAa1qcnrTlS6F12oUa8wf+Rm1Ga\naVBSDU4q7um1yfzueQSzLYn8XMzk5+6dw1Sa6eSldm8aQJp8BSmLTWW+ctcjv7Tz\nThPJ/UwlYWrRYqCYWmJsq1Jr/W2UcYbYRhVMd/IPIem24msO2LQ6SrJzzx1QOZTr\nC26ZLA5sJTqyrLsWbeDVATsBde2F24k1GMslbYCsKdUrs6cQjLc0IFOOX5ojHGeO\nHpm6SgNXsHQTwLKO2cGDoian26/KAw9mKE1p68C+9EYZuAqors+2zkeCWuyKwaRI\n07zVWVzd6aAPiwtdMKe6Z8elMhPJcOMqYUcTIAECgYEA43gBkXx14430GPrM/ZYm\nTjAiVlB8iOiJ4tui9Sz7h9zJZCDhNcrWyvIgFRQELgaOEAdq4JjTzkMz69cR7ISN\noOjTkq3bAB9eini91d2dbY0iu8yuej7TIPLXl6qAvzyNOrAFjCS/l1Os37n467b+\nm+OFzliy6SoA3KuFlr1F4IECgYEAyliEco5QCetEeAGc9gyHJxmbvt0H397o3Jka\n97yzSH5iJtvGpxz35WckGM+2JuW3VldT+SQ9+c3A9Z+FaFwfDp8LrZCfONVo20bX\nd3V0sF1CUDJWi4ZqN/BAaFETaQYHfpBRzWYKe3hV1qguVYWDFatM//zZq89Mz54L\nYGRwpKECgYBtrNwcuMTirfwm2y5hirb3dg/oTDBvlqd9IWdmDYVN0a+svom39RAx\nlCLR5u/I/VIb+meW2Tkut4peSTmUL6lWD0yL6ZWxbm6YF3V4m70fKDC6Ggt6V7ZW\nqaA3uXcQPfLefCaAlutl3Gt7B+E0TexfX4mRn4TMFXuK6oyjzKjXgQKBgH8dmp8o\nviltDkdhpAyClElA8jG2Q2Mlcx5aZLGrbumk095bhPGo5ibMY8XefyzydPmdxNgo\nJ3MOCiGEBFgqPyx9R+XSi+Q1VTkjyOp39EVzYNxmsy3V1Fat7JhcDpiUvBKLcYha\niU1FrI88elcpl87+HVJXsxsXEMcBH15/2q/hAoGBAIjdAay6WJPss7qTzfK/lErN\n8wXRrW8xfpcIPl9wyLi5vgfd7RObgFTrdrCPm9HxUl911Y36BqdqKQ4CdW9n+NGg\nFkMb+6Qscyr3MhY3BWfIaepif7Hzztx78SPcmpF+IUYNqoWtjUUz1eMlzdHtU30R\n3xIuOf1fcqiVe/YN6N3f\n-----END PRIVATE KEY-----\n",
+  "client_email": "chainguard@chainguardai.iam.gserviceaccount.com",
+  "client_id": "117329198479546979322",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/chainguard%40chainguardai.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
