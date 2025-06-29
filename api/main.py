@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 import google.generativeai as genai
 from dotenv import load_dotenv
+from mangum import Mangum
 
 load_dotenv()
 
@@ -21,8 +22,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Configuration
-MODEL_NAME = "gemini-2.5-pro"  # Default model
-API_KEY = None  # Will be set from environment or service account
+MODEL_NAME = os.getenv("GEMINI_MODEL_NAME", "gemini-2.5-pro")
+API_KEY = None  # Will be set from environment
 
 # Global variables
 model = None
@@ -70,45 +71,22 @@ ChainGuard AI solves problems like deprecated data sources, lack of explainable 
 """
 
 def get_api_key():
-    """Get API key from environment or generate from service account"""
+    """Get API key from environment"""
     
-    # First try environment variable
-    api_key = os.getenv('GOOGLE_AI_API_KEY') or os.getenv('GEMINI_API_KEY')
+    # Try different environment variable names
+    api_key = (
+        os.getenv('GOOGLE_AI_API_KEY') or 
+        os.getenv('GEMINI_API_KEY') or
+        os.getenv('GOOGLE_API_KEY')
+    )
+    
     if api_key:
         logger.info("✅ Using API key from environment variable")
         return api_key
     
-    # Try to use service account to get access token
-    try:
-        import google.auth
-        from google.auth.transport.requests import Request
-        
-        # Check if service account file exists
-        service_account_path = "./chainguardai-1728b786facc.json"
-        if os.path.exists(service_account_path):
-            os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = service_account_path
-            
-            credentials, project = google.auth.default(
-                scopes=['https://www.googleapis.com/auth/cloud-platform']
-            )
-            
-            # Refresh to get access token
-            request = Request()
-            credentials.refresh(request)
-            
-            if hasattr(credentials, 'token') and credentials.token:
-                logger.info("✅ Using access token from service account")
-                return credentials.token
-        
-    except Exception as e:
-        logger.warning(f"⚠️ Could not get access token from service account: {e}")
-    
     # If no API key found, provide instructions
     logger.error("❌ No API key found!")
-    logger.error("Please set up authentication by either:")
-    logger.error("1. Set GOOGLE_AI_API_KEY environment variable")
-    logger.error("2. Get a free API key from: https://makersuite.google.com/app/apikey")
-    logger.error("3. Export it: export GOOGLE_AI_API_KEY='your_api_key_here'")
+    logger.error("Please set GOOGLE_AI_API_KEY environment variable")
     
     return None
 
@@ -120,15 +98,18 @@ async def initialize_gemini():
         # Get API key
         API_KEY = get_api_key()
         if not API_KEY:
-            raise Exception("No API key available - see instructions above")
+            raise Exception("No API key available - set GOOGLE_AI_API_KEY environment variable")
         
         # Configure Google AI
         genai.configure(api_key=API_KEY)
         
         # Try different models in order of preference
         model_names_to_try = [
+            MODEL_NAME,
             "gemini-2.5-pro",
-            "gemini-2.5-flash"
+            "gemini-2.5-flash",
+            "gemini-1.5-pro",
+            "gemini-1.5-flash"
         ]
         
         model_initialized = False
@@ -168,7 +149,7 @@ async def initialize_gemini():
         
         logger.info(f"✅ Google AI initialized successfully")
         logger.info(f"   🤖 Model: {MODEL_NAME}")
-        logger.info(f"   🔑 Authentication: {'API Key' if len(API_KEY) < 100 else 'Access Token'}")
+        logger.info(f"   🔑 Authentication: API Key")
         
     except Exception as e:
         logger.error(f"❌ Failed to initialize Google AI: {e}")
@@ -353,6 +334,9 @@ async def setup_instructions():
         "alternative": "You can also set GEMINI_API_KEY instead of GOOGLE_AI_API_KEY",
         "note": "This is much easier than setting up Vertex AI and works immediately!"
     }
+
+# Required for Vercel - This is the key addition for serverless deployment
+handler = Mangum(app)
 
 if __name__ == "__main__":
     import uvicorn
