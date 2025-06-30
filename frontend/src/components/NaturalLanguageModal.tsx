@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Send, MessageSquare, Loader2 } from 'lucide-react';
-import Modal from './ui/Modal';
-import Button from './ui/Button';
+import React, { useState } from "react";
+import { Send, MessageSquare, Loader2, AlertCircle } from "lucide-react";
+import Modal from "./ui/Modal";
+import Button from "./ui/Button";
 
 interface NaturalLanguageModalProps {
   isOpen: boolean;
@@ -9,54 +9,107 @@ interface NaturalLanguageModalProps {
   onSubmit: (query: string) => void;
 }
 
+interface ApiResponse {
+  answer: string;
+  confidence: number;
+  timestamp: string;
+  model_used: string;
+}
+
+interface ApiError {
+  message: string;
+  status?: number;
+}
+
 const NaturalLanguageModal: React.FC<NaturalLanguageModalProps> = ({
   isOpen,
   onClose,
   onSubmit,
 }) => {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [response, setResponse] = useState<string | null>(null);
+  const [response, setResponse] = useState<ApiResponse | null>(null);
+  const [error, setError] = useState<ApiError | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!query.trim()) return;
+    if (!query.trim() || query.length > 1000) return;
 
     setIsLoading(true);
     setResponse(null);
+    setError(null);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const mockResponse = generateMockResponse(query);
-      setResponse(mockResponse);
-      setIsLoading(false);
+    try {
+      const apiToken = import.meta.env.VITE_NL_API_TOKEN;
+      const baseURL = import.meta.env.VITE_NL_API_BASE_URL || "";
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+
+      if (apiToken) {
+        headers["Authorization"] = `Bearer ${apiToken}`;
+      }
+
+      const apiResponse = await fetch(`${baseURL}/ask`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          question: query.trim(),
+        }),
+      });
+
+      if (!apiResponse.ok) {
+        const errorData = await apiResponse.json().catch(() => ({}));
+        throw new Error(
+          errorData.message ||
+            `HTTP ${apiResponse.status}: ${apiResponse.statusText}`
+        );
+      }
+
+      const data: ApiResponse = await apiResponse.json();
+      setResponse(data);
       onSubmit(query);
-    }, 2000);
-  };
-
-  const generateMockResponse = (query: string): string => {
-    const lowerQuery = query.toLowerCase();
-    
-    if (lowerQuery.includes('safe') || lowerQuery.includes('secure')) {
-      return "Based on our AI analysis, Aave and Compound are currently among the safest DeFi protocols with risk scores of 15 and 25 respectively. They have strong security audits, healthy financial metrics, and active governance.";
+    } catch (err) {
+      console.error("API Error:", err);
+      setError({
+        message:
+          err instanceof Error
+            ? err.message
+            : "Failed to get response from ChainGuard AI",
+        status:
+          err instanceof Error && "status" in err
+            ? (err as any).status
+            : undefined,
+      });
+    } finally {
+      setIsLoading(false);
     }
-    
-    if (lowerQuery.includes('high yield') || lowerQuery.includes('apy')) {
-      return "For higher yields, you might consider Curve Finance (risk score: 30) which offers competitive APYs on stablecoin pools. However, be aware of the medium risk level due to recent governance changes.";
-    }
-    
-    if (lowerQuery.includes('compare')) {
-      return "I can help you compare protocols! Aave (risk: 15) offers better security, while Curve (risk: 30) provides higher yields. Would you like a detailed side-by-side comparison?";
-    }
-    
-    return "I've analyzed your query and found several relevant protocols. Aave and Uniswap show strong fundamentals with low risk scores. Would you like me to provide more specific recommendations based on your risk tolerance?";
   };
 
   const handleClose = () => {
-    setQuery('');
+    setQuery("");
     setResponse(null);
+    setError(null);
     setIsLoading(false);
     onClose();
+  };
+
+  const formatConfidence = (confidence: number): string => {
+    return `${(confidence * 100).toFixed(1)}%`;
+  };
+
+  const formatTimestamp = (timestamp: string): string => {
+    try {
+      return new Date(timestamp).toLocaleString();
+    } catch {
+      return timestamp;
+    }
+  };
+
+  const getConfidenceColor = (confidence: number): string => {
+    if (confidence >= 0.8) return "text-green-600";
+    if (confidence >= 0.6) return "text-yellow-600";
+    return "text-red-600";
   };
 
   const exampleQueries = [
@@ -64,18 +117,29 @@ const NaturalLanguageModal: React.FC<NaturalLanguageModalProps> = ({
     "Compare Aave vs Compound for lending",
     "What are the highest yield opportunities with medium risk?",
     "Is Curve Finance safe for stablecoin farming?",
+    "What is ChainGuard AI used for?",
+    "How does the risk assessment algorithm work?",
   ];
 
+  const isQueryValid = query.trim() && query.length <= 1000;
+
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Ask ChainGuard AI" className="max-w-3xl">
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title="Ask ChainGuard AI"
+      className="max-w-3xl"
+    >
       <div className="space-y-6">
         <div className="flex items-start gap-3 p-4 bg-muted/10 rounded-lg border border-border">
           <MessageSquare className="h-5 w-5 text-primary mt-0.5" />
           <div>
             <h3 className="font-medium mb-1">Natural Language Query</h3>
             <p className="text-sm text-muted-foreground">
-              Ask me anything about DeFi protocols, risk assessments, or investment strategies. 
-              I'll analyze the data and provide personalized recommendations.
+              Ask me anything about DeFi protocols, risk assessments, or
+              investment strategies. I'll analyze the data and provide
+              personalized recommendations powered by{" "}
+              {response?.model_used || "advanced AI models"}.
             </p>
           </div>
         </div>
@@ -90,19 +154,27 @@ const NaturalLanguageModal: React.FC<NaturalLanguageModalProps> = ({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="e.g., Which protocols are safest for a $10k investment?"
-              className="w-full h-24 px-3 py-2 bg-background border border-border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              className={`w-full h-24 px-3 py-2 bg-background border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
+                query.length > 1000 ? "border-red-500" : "border-border"
+              }`}
               disabled={isLoading}
+              maxLength={1000}
             />
           </div>
 
           <div className="flex justify-between items-center">
-            <div className="text-xs text-muted-foreground">
-              {query.length}/500 characters
+            <div
+              className={`text-xs ${
+                query.length > 1000 ? "text-red-500" : "text-muted-foreground"
+              }`}
+            >
+              {query.length}/1000 characters
+              {query.length > 1000 && " (Too long)"}
             </div>
-            <Button 
-              type="submit" 
-              disabled={!query.trim() || isLoading}
-              className="min-w-[100px]"
+            <Button
+              type="submit"
+              disabled={!isQueryValid || isLoading}
+              className="min-w-[120px]"
             >
               {isLoading ? (
                 <>
@@ -119,6 +191,23 @@ const NaturalLanguageModal: React.FC<NaturalLanguageModalProps> = ({
           </div>
         </form>
 
+        {error && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
+              <div>
+                <h4 className="font-medium text-red-800 mb-1">Error</h4>
+                <p className="text-sm text-red-700">{error.message}</p>
+                {error.status && (
+                  <p className="text-xs text-red-600 mt-1">
+                    Status: {error.status}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {response && (
           <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
             <div className="flex items-start gap-3">
@@ -126,8 +215,28 @@ const NaturalLanguageModal: React.FC<NaturalLanguageModalProps> = ({
                 <MessageSquare className="h-4 w-4 text-primary" />
               </div>
               <div className="flex-1">
-                <h4 className="font-medium mb-2">ChainGuard AI Response</h4>
-                <p className="text-sm text-muted-foreground leading-relaxed">{response}</p>
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-medium">ChainGuard AI Response</h4>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span
+                      className={`font-medium ${getConfidenceColor(
+                        response.confidence
+                      )}`}
+                    >
+                      {formatConfidence(response.confidence)} confidence
+                    </span>
+                    <span>•</span>
+                    <span>{response.model_used}</span>
+                  </div>
+                </div>
+                <div className="max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-2">
+                    {response.answer}
+                  </p>
+                </div>
+                <div className="text-xs text-muted-foreground mt-2 pt-2 border-t border-primary/10">
+                  {formatTimestamp(response.timestamp)}
+                </div>
               </div>
             </div>
           </div>
@@ -140,7 +249,7 @@ const NaturalLanguageModal: React.FC<NaturalLanguageModalProps> = ({
               <button
                 key={index}
                 onClick={() => setQuery(example)}
-                className="text-left p-3 text-sm bg-muted/5 hover:bg-muted/10 border border-border rounded-md transition-colors"
+                className="text-left p-3 text-sm bg-muted/5 hover:bg-muted/10 border border-border rounded-md transition-colors disabled:opacity-50"
                 disabled={isLoading}
               >
                 "{example}"
