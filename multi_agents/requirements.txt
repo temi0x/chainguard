@@ -1,0 +1,61 @@
+# Google ADK and AI Platform
+google-generativeai>=0.8.5
+google-cloud-aiplatform>=1.60.0
+google-auth>=2.23.0
+google-auth-oauthlib>=1.1.0
+google-cloud-core>=2.4.1
+
+# Note: google-adk-python is not yet publicly available
+# Using standard Google AI libraries as foundation
+# Will integrate with ADK when available
+
+# Web Framework
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+
+# HTTP Client
+httpx>=0.25.0
+aiohttp>=3.9.0
+
+# Async Redis
+redis[asyncio]>=5.0.0
+
+# Data Processing
+pandas>=2.1.0
+numpy>=1.24.0
+aiofiles>=23.2.0
+
+# Configuration
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+python-dotenv>=1.0.0
+
+# Utilities
+tenacity>=8.2.0  # Retry logic
+asyncio-throttle>=1.0.2  # Rate limiting
+python-dateutil>=2.8.2
+
+# Development and Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-mock>=3.12.0
+black>=23.10.0
+isort>=5.12.0
+
+# Logging and Monitoring
+structlog>=23.2.0
+rich>=13.7.0
+
+# External API clients
+PyGithub>=2.1.0  # GitHub API
+websockets>=12.0  # WebSocket support
+
+# JSON and Data Validation
+jsonschema>=4.20.0
+marshmallow>=3.20.0
+
+# Cryptography (for secure operations)
+cryptography>=41.0.0
+
+# Environment and OS utilities
+psutil>=5.9.0
